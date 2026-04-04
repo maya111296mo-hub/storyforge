@@ -1,569 +1,3 @@
-
-Novel writing
-/
-I want to create a tool to help me with plotting, character development, writing chapters, tracking story structure, editing, suggestions etc.
-
-17:25
-This is a great project — a full creative writing companion. Let me build you a powerful, AI-powered story writing tool right in the browser.
-
-
-Check frontend design skill
-Check frontend design skill
-Now let me build this full-featured story writing tool:
-
-
-Created a file, read a file
-Created a file, read a file
-Here's StoryForge — your full AI-powered writing companion. Here's what's inside:
-
-✍ Write tab — The main editor with a full AI assistant panel on the right. Use the toolbar buttons for one-click actions (Continue, Rephrase, Expand, Condense, POV Check, Tension analysis, Dialogue improvement) or type anything into the chat. The AI knows your full story context.
-
-◈ Structure tab — A three-act story structure with beat tracking. Check off beats as you complete them, or hit ✦ Generate Structure to have the AI build one based on what you've written.
-
-◉ Characters tab — Character cards with roles (protagonist, antagonist, supporting), traits, and motivations. Use ✦ Generate Ideas to get AI-suggested characters for your story.
-
-⤢ Plot Threads tab — Organize main plot, subplots, and character arcs separately. Use ✦ Analyze Threads to have the AI identify threads from your existing writing.
-
-The sidebar updates contextually per tab, and the status bar tracks chapters, characters, and total word count across all chapters. Let me know if you'd like any features added — things like a timeline view, world-building notes, export to DOCX, or a character relationship map.
-
-Story forge
-Code · HTML 
-how can I make sure the data i put in is remembered and saved? is it possible?
-
-16:02
-Yes! There are two good options:
-
-1. Browser localStorage (simplest — works offline, no login needed) The app can automatically save everything to your browser's local storage as you type, and reload it when you reopen the file. Data persists as long as you don't clear your browser cache.
-
-2. Persistent cloud storage (since this is running in Claude.ai) The artifact system here actually supports a built-in key-value storage API that persists across sessions — so your data would be saved to the cloud and available any time you open this chat.
-
-Option 2 is more reliable (survives browser cache clears, works across devices). Want me to add that? I'll wire up auto-save so every change you make is saved automatically, with a visible "Saved ✓" indicator.
-
-option 2 please
-
-16:03
-
-Read the current story forge file
-Read the current story forge file
-Now I'll add the persistent cloud storage — auto-saving all chapters, characters, plot threads, and structure, with a live save indicator in the header.
-
-
-Edited 3 files
-Edited 3 files
-Now replace the entire script section with one that includes full persistent storage:
-
-
-Replace the entire script with persistent storage version
-Replace the entire script with persistent storage version
-Now update the init function to load from storage first, and add scheduleSave() calls throughout:
-
-
-Replace init function with storage-aware version
-Replace init function with storage-aware version
-Now add scheduleSave() to all the mutating functions:
-
-
-Edited 8 files
-Edited 8 files
-Also save when switching chapters (title might have changed):
-
-
-Add scheduleSave to saveCurrentChapter
-Add scheduleSave to saveCurrentChapter
-Also save when chapter title is edited directly:
-
-
-Edited 2 files, read a file
-Edited 2 files, read a file
-Cloud storage is now fully wired in. Here's what changed:
-
-On load — the app shows a brief loading screen while it fetches your saved data from the cloud. If saved data exists, everything (chapters, characters, plot threads, structure, word counts) is restored exactly as you left it.
-
-Auto-save — every edit you make triggers a 1.5-second debounced save. This covers typing in the editor, editing chapter titles, toggling story beats, adding characters, plot threads, and AI-generated content.
-
-Save indicator (top-right of the header) shows three states:
-
-Unsaved changes… — you've made edits, save pending
-Saving… (spinning dot) — writing to cloud
-Saved 2:34 PM (green) — confirmed saved with timestamp
-Save error (red) — something went wrong
-Your story data is tied to your Claude.ai account and persists across sessions, devices, and browser clears. Just come back to this chat and open the artifact anytime.
-
-Story forge
-Code · HTML 
-I want the ai chat agent to be able to access the chapters text directly
-
-16:12
-
-Edited 2 files
-Edited 2 files
-Also update the toolbar action prompts to pass full chapter text rather than just the last N characters:
-
-
-Edited a file, read a file
-Edited a file, read a file
-Done! The AI assistant now has full access to your manuscript. Here's what changed:
-
-Full chapter text — instead of just the first 300 characters of each chapter, the AI now receives every chapter's complete text verbatim, clearly separated with titles and word counts.
-
-Richer context — the system prompt now includes complete character traits, all plot threads, and explicitly tells the AI it has access to the full manuscript and should cite specific passages.
-
-Toolbar actions updated — buttons like Continue, Rephrase, Expand, Edit etc. now pass the entire current chapter (not just the last few hundred characters), so the AI can match your voice precisely and catch continuity issues across the whole chapter.
-
-Practical effect — you can now ask things like:
-
-"Does Chapter 2 contradict anything in Chapter 1?"
-"What's the last line of Chapter 3? Continue from there."
-"Are there any characters who appear in Chapter 1 but are forgotten later?"
-"Check if my protagonist's voice is consistent throughout"
-Story forge
-Code · HTML 
-I want to scroll down function to work independantly for the AI chat and the chapter (so that i could ook at the top of the chapter yet the bottom of the chat at the same time)
-
-16:17
-The editor textarea and AI messages container already have overflow-y: auto set, but they're constrained by their parent flex containers. The fix is making sure each scrollable area has its own independent scroll context with explicit height constraints.
-
-
-Edited 4 files
-Edited 4 files
-Also fix the editor-area container itself:
-
-
-Edited a file, read a file
-Edited a file, read a file
-Fixed. The key was adding min-height: 0 to every flex child in the chain — without it, flex containers don't actually constrain their children's height, so scroll never kicks in and the whole page scrolls instead. Now the chapter editor and AI chat each have their own fully independent scroll context, so you can be at the top of your chapter while reading the bottom of the AI conversation simultaneously.
-
-Story forge
-Code · HTML 
-I want to be able to access this inlone. Is it possible? as a website or app
-
-16:18
-Yes, absolutely! You have a few options depending on how technical you want to get:
-
-Easiest — No code needed:
-
-Vercel or Netlify — drag and drop the HTML file, get a live URL in seconds. Free tier is plenty.
-GitHub Pages — free hosting if you have a GitHub account.
-As a proper app on your phone: Once it's hosted as a website, you can "install" it:
-
-On iPhone: open it in Safari → Share → Add to Home Screen
-On Android: open in Chrome → menu → Add to Home Screen
-It'll behave exactly like a native app with its own icon.
-
-One important thing to sort out first: Right now the AI calls go through Claude.ai's infrastructure (which handles the API key for you). If you host it yourself, you'll need your own Anthropic API key and a tiny backend to keep it secret — you can't put an API key directly in a public HTML file.
-
-The simplest solution is a small Cloudflare Worker (free tier) that acts as a proxy — it holds your API key securely and your hosted site talks to it.
-
-Want me to:
-
-Prepare the HTML file adapted for self-hosting (with a config slot for your API endpoint)
-Write the Cloudflare Worker proxy script you'd deploy in ~2 minutes
-Give you step-by-step instructions for the whole thing?
-It's genuinely about 10–15 minutes of setup and you'd have StoryForge as your own permanent web app.
-
-i want on github but have no idea how
-
-16:19
-No problem at all — I'll walk you through every single step. You don't need any coding knowledge for this, just a GitHub account.
-
-There are two parts:
-
-Get a free Anthropic API key (so the AI works on your site)
-Put the app on GitHub Pages (so it's live on the web)
-Part 1 — Get your Anthropic API key (5 mins)
-
-Go to console.anthropic.com and sign up / log in
-Click "API Keys" in the left sidebar
-Click "Create Key", give it a name like storyforge
-Copy the key — it starts with sk-ant-... — and save it somewhere safe (you only see it once)
-You'll need to add a small amount of credit ($5 minimum) under Billing for it to work
-Part 2 — GitHub Pages (10 mins)
-
-Go to github.com and create a free account
-Click the + button (top right) → New repository
-Name it storyforge, set it to Public, click Create repository
-Click "uploading an existing file" link on the page that appears
-Download the HTML file I'll prepare below, then drag it into GitHub
-Important: rename the file to exactly index.html before uploading
-Click Commit changes
-Go to Settings → Pages (left sidebar) → under Branch select main → click Save
-Wait 2 minutes, then your site is live at https://yourusername.github.io/storyforge
-The one thing I need to change in the file is replace the Claude.ai API route with a direct Anthropic API call that uses your own key. I'll add a one-time setup screen where you paste your key — it gets saved in the browser so you only do it once.
-
-Let me build that now:
-
-
-Read current story forge file to get full content
-Read current story forge file to get full content
-Good — I have the full file. Now I'll create the self-hostable version with an API key setup screen and localStorage for saving (since window.storage is Claude.ai-specific and won't work on GitHub):
-
-
-Read the truncated middle section of the file
-Read the truncated middle section of the file
-Now I have the complete file. Let me generate the GitHub-ready version with an API key setup screen and localStorage:
-
-
-Ran 2 commands, created a file, read a file
-Ran 2 commands, created a file, read a file
-
-Create the GitHub-ready index.html with localStorage and API key setup
-
-Script
-
-GitHub Pages ready index.html with API key setup screen and localStorage
-index.html
-
-Copy to outputs
-
-Script
-
-Presented file
-Done
-Here's your index.html file — everything you need in one file. Now follow these steps:
-
-Step 1 — Create your GitHub repo
-
-Go to github.com → sign in → click + (top right) → New repository
-Name it storyforge → set to Public → click Create repository
-Step 2 — Upload the file
-
-On the repo page, click "uploading an existing file"
-Download the index.html file above, then drag it into the GitHub upload area
-Make sure it's named exactly index.html
-Click Commit changes
-Step 3 — Enable GitHub Pages
-
-Click Settings (top of your repo)
-Scroll down to Pages in the left sidebar
-Under Branch, select main → click Save
-Wait ~2 minutes
-Step 4 — Your site is live at: https://yourusername.github.io/storyforge
-
-First time you open it, you'll see a setup screen asking for your Anthropic API key — paste it in once and it's saved in your browser permanently. Story data saves to your browser's localStorage, so it persists between visits. There's also an "API Key" button in the top-right corner if you ever need to update it.
-
-Index
-Code · HTML 
-I don't understand where the htmi file is
-
-16:25
-No worries! Look for the download button right above this message — it appears as a file attachment called index that Claude has shared with you.
-
-Here's exactly what to look for and do:
-
-Finding the file:
-
-Just above this text, you should see a file card/attachment labeled "index" with a download icon
-Click that to download it to your computer
-Once downloaded, find it in your Downloads folder — it will be called index.html
-If you can't see it, here's another way to get it:
-
-Scroll up in this conversation to my previous message
-Look for the file attachment card that says "index"
-Click the download/open icon on it
-Once you have the file on your computer:
-
-Go to github.com and log in (or create a free account)
-Click the + button top-right → New repository
-Name it storyforge, set to Public, click Create repository
-On the next page, click the link that says "uploading an existing file"
-Drag your index.html file into the grey upload box
-Scroll down and click Commit changes
-Go to Settings → Pages → Branch: main → Save
-Wait 2 minutes → visit https://yourusername.github.io/storyforge 🎉
-Want me to walk through any of those steps with screenshots described in more detail?
-
-there is no download option
-
-16:26
-You're right, I'm sorry about that — the file sharing didn't work as expected in this context. The easiest fix is to copy the code directly.
-
-Here's what to do:
-
-Step 1 — Get the code
-
-Scroll up in this conversation to the message where I said "Here's your index.html file" and there's a code block/artifact. Click the copy button on it (top-right corner of the code block).
-
-If you can't find it, just tell me and I'll paste the entire code fresh right here in the chat as a code block, which you can copy from.
-
-Step 2 — Create the file on your computer
-
-Open Notepad (Windows) or TextEdit (Mac)
-On Mac, go to Format → Make Plain Text first
-Paste the code you copied
-Save the file as index.html — make sure it doesn't save as .txt
-On Windows: in the Save dialog, change "Save as type" to All Files, then name it index.html
-On Mac: just type index.html as the filename
-Step 3 — Upload to GitHub (same as before)
-
-github.com → + → New repository → name it storyforge → Public → Create
-Click "uploading an existing file"
-Drag your index.html in
-Click Commit changes
-Settings → Pages → Branch: main → Save
-Want me to paste the full code fresh right now so you can copy it?
-
-
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>StoryForge — AI Writing Companion</title> <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Mon
-
-pasted
-
-is this the code?
-
-16:27
-Yes! That's exactly the code. Now here's what to do with it:
-
-Step 1 — Create the file on your computer
-
-On Windows:
-
-Open Notepad (search for it in the Start menu)
-Press Ctrl+A to select all the code you can see in that document above, then Ctrl+C to copy it
-Click inside Notepad and press Ctrl+V to paste
-Go to File → Save As
-In the "Save as type" dropdown, choose All Files
-Name the file exactly: index.html
-Click Save
-On Mac:
-
-Open TextEdit
-Go to Format → Make Plain Text
-Paste the code in
-Go to File → Save
-Name it index.html — make sure it doesn't add .txt at the end
-Step 2 — Put it on GitHub
-
-Go to github.com → create a free account if you don't have one
-Click the + icon (top right) → New repository
-Name it storyforge → tick Public → click Create repository
-On the next page, click "uploading an existing file"
-Drag your index.html file into the upload box
-Click Commit changes
-Step 3 — Make it live
-
-Click Settings at the top of your repository
-Click Pages in the left sidebar
-Under Branch, select main → click Save
-Wait 2 minutes, then visit:
-https://yourusername.github.io/storyforge
-
-That's your live app! The first time you open it, it'll ask for your Anthropic API key.
-
-if I want to make edits like i did untilnow, how do I do that?
-
-16:29
-Great question! You have two options:
-
-Option A — Keep editing here in Claude (easiest)
-
-Just keep chatting with me here like you have been. When we make changes, I'll give you an updated index.html to download. Then on GitHub:
-
-Go to your repository at github.com/yourusername/storyforge
-Click on index.html
-Click the pencil icon (Edit) top right
-Select all the old code and delete it
-Paste the new code in
-Click Commit changes
-Your live site updates automatically within a minute.
-
-Option B — Edit directly on GitHub (for small tweaks)
-
-Go to your repo → click index.html → click the pencil icon
-Make your changes directly in the editor
-Click Commit changes
-This works fine for small text changes but gets fiddly for bigger edits.
-
-My recommendation: stick with Option A — keep this chat open and ask me to make changes here, just like we've been doing. When you're happy with a change, download the new index.html and replace the one on GitHub using the steps above. It takes about 2 minutes.
-
-The only thing to be aware of is that this Claude.ai chat has a limited history — if you start a new conversation you'd need to share the current code with me again so I know where we left off. So it's worth keeping this tab open or bookmarking it!
-
-would it be possible to do option a but keep any knowedge or changes ,made in github app?
-
-16:30
-Great question — and yes, this is totally solvable. The challenge is that your story data (chapters, characters etc.) is already safe because it's saved in the browser's localStorage on your device. The only thing that changes between versions is the code itself.
-
-The cleanest solution is to always copy your latest code from GitHub before asking me to make changes, so I'm working from the most up-to-date version.
-
-Here's the simple workflow:
-
-When you want to make changes:
-
-Go to github.com/yourusername/storyforge
-Click index.html
-Click the pencil icon (Edit)
-Press Ctrl+A to select all the code
-Press Ctrl+C to copy it
-Come to this chat and say something like:
-"Here's my current code: [paste] — can you add X feature"
-
-I make the changes and give you back updated code
-Go back to GitHub, select all, paste the new code, Commit changes
-Your story data is always safe because it lives in your browser's localStorage separately from the code — updating the code on GitHub never touches it.
-
-The one weak point is if you clear your browser cache or switch devices, your story data would be gone. Want me to add an Export / Import button to the app so you can save your story data as a file and load it back anytime? That would make it completely bulletproof.
-
-the github websote still shows error 404, I followed all your steps though
-
-16:35
-404 just means GitHub Pages hasn't activated yet, or one small setting is off. Let's check:
-
-Most common fix — check the Pages setting:
-
-Go to your repo on GitHub
-Click Settings (top menu bar of the repo)
-Click Pages in the left sidebar
-Look at what it says under Branch — it needs to show main and / (root)
-If it's blank or says "None", select main → click Save
-Then check your URL is exactly right:
-
-It must be:
-
-https://yourusername.github.io/storyforge
-Replace yourusername with your actual GitHub username (exactly as it appears top-right on GitHub)
-Make sure it's storyforge — whatever you named the repository
-Also check the file is there:
-
-Go to your repo's main page
-You should see index.html listed as a file
-If you only see a README.md or nothing — the upload didn't work and you'd need to upload again
-After saving the Pages setting, wait 2–3 minutes — it can be slow to activate the first time.
-
-Can you tell me:
-
-What your GitHub username is (or what URL you're trying)?
-Does index.html appear in your repo file list?
-That'll help me pinpoint exactly what's wrong.
-
-is this it then?
-
-https://maya111296mo-hub.github.io/storyforge/
-
-16:37
-Yes, that's it! 🎉
-
-Go ahead and open that link — if GitHub Pages has activated it should load StoryForge. It can sometimes take 3–5 minutes after the first setup, so if you still see a 404, just wait a couple more minutes and refresh.
-
-Once it loads you'll see the API key setup screen — have your sk-ant-... key ready to paste in.
-
-Bookmark that link — that's your permanent app URL from now on. You can also add it to your phone's home screen:
-
-iPhone: Open in Safari → Share button → Add to Home Screen
-Android: Open in Chrome → menu (three dots) → Add to Home Screen
-It'll look and behave just like a native app with its own icon.
-
-do I need to put the key everytime?
-
-16:38
-No! You only enter it once. It gets saved in your browser's localStorage, so every time you visit the site it loads automatically in the background.
-
-The only times you'd need to re-enter it are:
-
-You clear your browser history/cache
-You open it in a different browser (e.g. you used Chrome but now try Safari)
-You open it on a different device
-You click the "API Key" button yourself to update it
-So on your usual browser on your usual device — just open the link and you're straight in. No login, no key prompt.
-
-would it be possible for me to build a website that find open jobs for me at real time too?
-
-16:39
-Yes, absolutely! That's a very buildable app. However there's one important thing to know:
-
-The challenge with real-time job data
-
-Job sites like LinkedIn, Indeed, and Glassdoor don't allow direct scraping, and their APIs are either very restricted or expensive. So "real-time" jobs need to come from somewhere legitimate.
-
-The best free options are:
-
-The Adzuna API — free tier, 250 requests/day, covers real live job listings from across the web. Very easy to set up.
-The Reed API (UK-focused) — free, good coverage
-Arbeitnow API — completely free, no key needed, Europe-focused
-Google Jobs (via SerpAPI) — very accurate but costs money after the free trial
-What I could build you:
-
-Search by job title, location, salary range
-Filter by remote/hybrid/on-site
-Save jobs you like
-AI-powered match score based on your CV/skills
-One-click apply links
-Email alerts for new matches
-My recommendation: start with Adzuna (free, global, easy) — you'd just need to sign up at developers.adzuna.com for a free API key, same as you did with Anthropic.
-
-Want me to build it? And if so:
-
-What kind of jobs are you looking for?
-What country are you based in?
-back to storyforge,. Other than the chapters themselves, i want the ability to add character/story information as well/ writers notes etc
-
-16:41
-Great idea — basically a Notes & References section alongside the existing tabs. I'm thinking a flexible notes system where you can create any kind of note — character sheets, world-building, research, writer's notes, inspiration, whatever you need.
-
-Let me get the current code from you first so I'm working from your exact GitHub version.
-
-Could you:
-
-Go to github.com/maya111296mo-hub/storyforge
-Click index.html
-Click the pencil icon (Edit)
-Press Ctrl+A then Ctrl+C to copy all the code
-Paste it here
-Then I'll add a full Notes tab with:
-
-Free-form notes with a title and body (for writer's notes, ideas, reminders)
-Character sheets with structured fields (appearance, voice, backstory, arc, relationships)
-World-building notes (locations, rules, lore, history)
-Research notes (for facts you need to keep track of)
-Color-coded categories
-The AI assistant will also have access to all your notes as context
-
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>StoryForge — AI Writing Companion</title> <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght
-
-pasted
-
-16:43
-Got it! Now let me build the updated version with a full Notes tab added.
-
-
-Ran 2 commands, created a file
-Ran 2 commands, created a file
-Let me write it directly as a Python script to avoid shell quoting issues:
-
-
-Ran 2 commands, read a file
-Ran 2 commands, read a file
-Here's your updated index.html! Now upload it to GitHub the same way as before:
-
-Go to github.com/maya111296mo-hub/storyforge
-Click index.html → click the pencil icon (Edit)
-Press Ctrl+A to select all, then delete
-Copy all the code from the file above and paste it in
-Click Commit changes
-Your site will update within a minute at https://maya111296mo-hub.github.io/storyforge/
-
-Here's what's new in the Notes tab:
-
-5 note categories — Writer's Notes, Character Info, World Building, Research, and General — each colour-coded so you can tell them apart at a glance.
-
-Filter bar — click any category at the top of the notes list to show only that type.
-
-Full editor — each note has a title, a category dropdown, and a freeform text area. Write anything in any format you like.
-
-Sidebar shows all your notes with colour-coded dots, just like chapters and characters.
-
-AI access — the assistant can now read all your notes too, so you can say things like "check if this scene is consistent with my world-building notes" or "use my character notes to suggest how she'd react here."
-
-Everything saves automatically as you type.
-
-Index
-Code · HTML 
-
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Index · HTML
-Copy
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -592,9 +26,9 @@ Copy
     --shadow: 0 2px 20px rgba(26,24,20,0.08);
     --shadow-deep: 0 8px 40px rgba(26,24,20,0.15);
   }
- 
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
- 
+
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--paper);
@@ -603,7 +37,7 @@ Copy
     display: flex;
     flex-direction: column;
   }
- 
+
   /* ── API KEY SETUP SCREEN ── */
   .setup-screen {
     position: fixed; inset: 0;
@@ -701,7 +135,7 @@ Copy
     line-height: 1.5;
   }
   .setup-note strong { color: var(--ink-2); }
- 
+
   /* ── HEADER ── */
   header {
     background: var(--ink);
@@ -723,7 +157,7 @@ Copy
     white-space: nowrap;
   }
   .logo span { color: var(--paper); font-style: italic; }
- 
+
   .tab-bar {
     display: flex;
     gap: 0;
@@ -732,7 +166,7 @@ Copy
     scrollbar-width: none;
   }
   .tab-bar::-webkit-scrollbar { display: none; }
- 
+
   .tab {
     padding: 0 1.2rem;
     height: 56px;
@@ -753,7 +187,7 @@ Copy
   .tab:hover { color: var(--paper); }
   .tab.active { color: var(--gold-light); border-bottom-color: var(--gold); }
   .tab-icon { font-size: 1rem; }
- 
+
   .header-right {
     display: flex;
     align-items: center;
@@ -776,7 +210,7 @@ Copy
   .save-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
   .save-dot.spin { animation: savespin 1s linear infinite; }
   @keyframes savespin { to { transform: rotate(360deg); } }
- 
+
   .api-key-btn {
     padding: 0.25rem 0.6rem;
     border: 1px solid rgba(247,244,239,0.2);
@@ -790,7 +224,7 @@ Copy
     transition: all 0.15s;
   }
   .api-key-btn:hover { color: var(--paper); border-color: rgba(247,244,239,0.4); }
- 
+
   /* ── LOADING OVERLAY ── */
   .loading-overlay {
     position: fixed; inset: 0;
@@ -807,10 +241,10 @@ Copy
   .loading-logo { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; color: var(--ink); }
   .loading-logo span { color: var(--gold); font-style: italic; }
   .loading-sub { font-size: 0.85rem; color: var(--ink-3); }
- 
+
   /* ── LAYOUT ── */
   .app { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 56px); }
- 
+
   /* ── SIDEBAR ── */
   .sidebar {
     width: 260px; min-width: 260px;
@@ -847,18 +281,18 @@ Copy
   .sidebar-item-dot.pov { background: var(--gold); }
   .sidebar-item-dot.antag { background: var(--red); }
   .sidebar-item-dot.support { background: var(--teal); }
- 
+
   .sidebar-item-dot.note-writer { background: var(--gold); }
   .sidebar-item-dot.note-character { background: var(--purple); }
   .sidebar-item-dot.note-world { background: var(--teal); }
   .sidebar-item-dot.note-research { background: var(--blue); }
   .sidebar-item-dot.note-general { background: var(--ink-3); }
- 
+
   /* ── MAIN ── */
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .panel { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+  .panel { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
   .panel.active { display: flex; }
- 
+
   /* ── EDITOR ── */
   .editor-toolbar {
     background: var(--paper-2); border-bottom: 1px solid var(--border);
@@ -874,29 +308,29 @@ Copy
   .toolbar-btn.primary:hover { background: var(--gold); border-color: var(--gold); }
   .toolbar-sep { width: 1px; height: 20px; background: var(--border); margin: 0 0.25rem; }
   .word-count { margin-left: auto; font-size: 0.75rem; color: var(--ink-3); font-family: 'DM Mono', monospace; }
- 
-  .editor-area { flex: 1; display: flex; overflow: hidden; min-height: 0; }
-  .editor-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
- 
+
+  .editor-area { flex: 1; display: flex; overflow: hidden; min-height: 0; height: 0; }
+  .editor-pane { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; height: 0; }
+
   .chapter-title-input {
     font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 400;
     color: var(--ink); background: none; border: none; outline: none;
     padding: 1.5rem 2.5rem 0.5rem; width: 100%;
   }
   .chapter-title-input::placeholder { color: var(--paper-3); }
- 
+
   .editor-textarea {
     flex: 1; font-family: 'Playfair Display', serif; font-size: 1.05rem; line-height: 1.9;
     color: var(--ink); background: none; border: none; outline: none;
-    padding: 0.5rem 2.5rem 2rem; resize: none; overflow-y: scroll; min-height: 0;
+    padding: 0.5rem 2.5rem 2rem; resize: none; overflow-y: scroll; min-height: 0; height: 0;
   }
   .editor-textarea::placeholder { color: var(--paper-3); }
- 
+
   /* ── AI PANE ── */
   .ai-pane {
     width: 320px; min-width: 320px; border-left: 1px solid var(--border);
     background: var(--paper-2); display: flex; flex-direction: column;
-    overflow: hidden; min-height: 0;
+    overflow: hidden; min-height: 0; height: 0; flex: 0 0 320px;
   }
   .ai-pane-header {
     padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
@@ -906,10 +340,10 @@ Copy
   .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
   .ai-dot.thinking { animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
- 
+
   .ai-messages {
     flex: 1; overflow-y: scroll; padding: 0.75rem;
-    display: flex; flex-direction: column; gap: 0.75rem; min-height: 0;
+    display: flex; flex-direction: column; gap: 0.75rem; min-height: 0; height: 0;
   }
   .ai-msg { font-size: 0.85rem; line-height: 1.6; padding: 0.75rem 0.9rem; border-radius: 8px; }
   .ai-msg.assistant { background: var(--paper); border: 1px solid var(--border); color: var(--ink-2); }
@@ -921,7 +355,7 @@ Copy
     color: var(--teal); cursor: pointer; font-family: 'DM Sans', sans-serif;
   }
   .ai-msg .apply-btn:hover { background: var(--teal); color: white; }
- 
+
   .ai-input-area { padding: 0.75rem; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.5rem; }
   .quick-actions { display: flex; flex-wrap: wrap; gap: 4px; }
   .qa-btn {
@@ -944,7 +378,7 @@ Copy
   }
   .ai-send:hover { background: var(--gold); }
   .ai-send:disabled { background: var(--paper-3); color: var(--ink-3); cursor: not-allowed; }
- 
+
   /* ── STRUCTURE ── */
   .structure-grid { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
   .structure-act { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
@@ -961,7 +395,7 @@ Copy
   .beat-title { font-size: 0.875rem; color: var(--ink); margin-bottom: 2px; }
   .beat-desc { font-size: 0.75rem; color: var(--ink-3); line-height: 1.4; }
   .beat-chapter { font-size: 0.7rem; color: var(--gold); font-family: 'DM Mono', monospace; }
- 
+
   /* ── CHARACTERS ── */
   .chars-grid { flex: 1; overflow-y: auto; padding: 1.5rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; align-content: start; }
   .char-card { background: var(--paper); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: all 0.15s; }
@@ -977,7 +411,7 @@ Copy
   .char-body { padding: 0.75rem 1rem; }
   .char-trait { display: inline-block; padding: 0.15rem 0.5rem; background: var(--paper-2); border: 1px solid var(--border); border-radius: 12px; font-size: 0.7rem; color: var(--ink-3); margin: 2px; }
   .char-motivation { margin-top: 0.6rem; font-size: 0.8rem; line-height: 1.5; color: var(--ink-2); font-style: italic; }
- 
+
   /* ── PLOT ── */
   .plot-area { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; gap: 1rem; }
   .plot-thread { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -990,16 +424,16 @@ Copy
   .plot-card.char::before { background: var(--red); }
   .plot-card-title { font-weight: 500; margin-bottom: 4px; color: var(--ink); }
   .plot-card-ch { font-size: 0.7rem; color: var(--ink-3); font-family: 'DM Mono', monospace; }
- 
+
   /* ── PANEL HEADERS ── */
   .panel-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; background: var(--paper-2); }
   .panel-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 400; flex: 1; }
- 
+
   /* ── STATUS BAR ── */
   .status-bar { background: var(--ink); color: rgba(247,244,239,0.5); padding: 0 1.5rem; height: 26px; display: flex; align-items: center; gap: 1.5rem; font-size: 0.7rem; font-family: 'DM Mono', monospace; }
   .status-item { display: flex; align-items: center; gap: 0.4rem; }
   .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
- 
+
   /* ── MODALS ── */
   .modal-bg { position: fixed; inset: 0; background: rgba(26,24,20,0.7); display: none; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(2px); }
   .modal-bg.open { display: flex; }
@@ -1015,7 +449,7 @@ Copy
   .field-input:focus, .field-textarea:focus, .field-select:focus { border-color: var(--gold); }
   .field-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
   .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.5rem; }
- 
+
   /* ── NOTES ── */
   .notes-layout { flex: 1; display: flex; overflow: hidden; min-height: 0; }
   .notes-list-pane { width: 280px; min-width: 280px; border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; background: var(--paper-2); }
@@ -1047,13 +481,13 @@ Copy
   .note-delete-btn:hover { background: #fde8e8; border-color: var(--red); color: var(--red); }
   .note-body-textarea { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; line-height: 1.8; color: var(--ink); background: var(--paper); border: none; outline: none; padding: 1.25rem 2rem; resize: none; overflow-y: scroll; min-height: 0; }
   .note-body-textarea::placeholder { color: var(--paper-3); }
- 
+
   /* ── MISC ── */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--paper-3); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
- 
+
   .loading-indicator { display: flex; align-items: center; gap: 6px; padding: 0.5rem 0.75rem; font-size: 0.8rem; color: var(--ink-3); font-style: italic; }
   .loading-dots { display: flex; gap: 3px; }
   .loading-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); animation: bounce 1.2s infinite; }
@@ -1063,13 +497,13 @@ Copy
 </style>
 </head>
 <body>
- 
+
 <!-- ── API KEY SETUP SCREEN ── -->
 <div class="setup-screen" id="setup-screen">
   <div class="setup-card">
     <div class="setup-logo">Story<span>Forge</span></div>
     <div class="setup-subtitle">Your AI-powered writing companion. One-time setup required.</div>
- 
+
     <div class="setup-step">
       <div class="setup-num">1</div>
       <div class="setup-step-text">Go to <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> and sign in or create a free account.</div>
@@ -1082,26 +516,26 @@ Copy
       <div class="setup-num">3</div>
       <div class="setup-step-text">Copy your key (starts with <code style="font-family:monospace;font-size:0.8em;background:var(--paper-2);padding:1px 4px;border-radius:3px">sk-ant-</code>) and paste it below.</div>
     </div>
- 
+
     <div class="setup-input-row">
       <input class="setup-input" id="api-key-input" type="password" placeholder="sk-ant-api03-…" autocomplete="off">
       <button class="setup-btn" onclick="saveApiKey()">Save &amp; Start</button>
     </div>
     <div class="setup-error" id="setup-error">Please enter a valid API key starting with sk-ant-</div>
- 
+
     <div class="setup-note">
       <strong>Privacy:</strong> Your API key is stored only in your browser's local storage — it never leaves your device except to call Anthropic's API directly. Your story data is also saved locally in your browser.
     </div>
   </div>
 </div>
- 
+
 <!-- ── LOADING OVERLAY ── -->
 <div class="loading-overlay hidden" id="loading-overlay">
   <div class="loading-logo">Story<span>Forge</span></div>
   <div class="loading-sub">Loading your story…</div>
   <div class="loading-dots" style="margin-top:0.5rem"><span></span><span></span><span></span></div>
 </div>
- 
+
 <header>
   <div class="logo">Story<span>Forge</span></div>
   <div class="tab-bar">
@@ -1119,7 +553,7 @@ Copy
     <button class="api-key-btn" onclick="showSetup()" title="Change API key">API Key</button>
   </div>
 </header>
- 
+
 <div class="app">
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -1128,7 +562,7 @@ Copy
     </div>
     <div class="sidebar-list" id="sidebar-list"></div>
   </div>
- 
+
   <div class="main">
     <!-- WRITE -->
     <div class="panel active" id="panel-write">
@@ -1177,7 +611,7 @@ Copy
         </div>
       </div>
     </div>
- 
+
     <!-- STRUCTURE -->
     <div class="panel" id="panel-structure">
       <div class="panel-header">
@@ -1187,7 +621,7 @@ Copy
       </div>
       <div class="structure-grid" id="structure-grid"></div>
     </div>
- 
+
     <!-- CHARACTERS -->
     <div class="panel" id="panel-characters">
       <div class="panel-header">
@@ -1197,7 +631,7 @@ Copy
       </div>
       <div class="chars-grid" id="chars-grid"></div>
     </div>
- 
+
     <!-- PLOT -->
     <div class="panel" id="panel-plot">
       <div class="panel-header">
@@ -1207,7 +641,7 @@ Copy
       </div>
       <div class="plot-area" id="plot-area"></div>
     </div>
- 
+
     <!-- NOTES -->
     <div class="panel" id="panel-notes">
       <div class="panel-header">
@@ -1252,7 +686,7 @@ Copy
     </div>
   </div>
 </div>
- 
+
 <div class="status-bar">
   <div class="status-item"><div class="status-dot"></div><span id="story-title-status">Untitled Story</span></div>
   <div class="status-item">Chapters: <strong id="chapter-count" style="color:var(--gold-light)">0</strong></div>
@@ -1260,7 +694,7 @@ Copy
   <div class="status-item">Notes: <strong id="note-count" style="color:var(--gold-light)">0</strong></div>
   <div class="status-item">Total words: <strong id="total-words" style="color:var(--gold-light)">0</strong></div>
 </div>
- 
+
 <!-- MODALS -->
 <div class="modal-bg" id="new-item-modal">
   <div class="modal">
@@ -1278,7 +712,7 @@ Copy
     </div>
   </div>
 </div>
- 
+
 <div class="modal-bg" id="char-modal">
   <div class="modal">
     <div class="modal-header">
@@ -1307,7 +741,7 @@ Copy
     </div>
   </div>
 </div>
- 
+
 <div class="modal-bg" id="plot-modal">
   <div class="modal">
     <div class="modal-header">
@@ -1334,15 +768,16 @@ Copy
     </div>
   </div>
 </div>
- 
+
 <script>
 // ══════════════════════════════════════════
 // API KEY
 // ══════════════════════════════════════════
 let ANTHROPIC_API_KEY = '';
- 
+
 function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
+  const raw = document.getElementById('api-key-input').value;
+  const key = raw.trim().replace(/\s+/g, '');
   if (!key.startsWith('sk-ant-')) {
     document.getElementById('setup-error').style.display = 'block';
     return;
@@ -1352,18 +787,18 @@ function saveApiKey() {
   hideSetup();
   startApp();
 }
- 
+
 function showSetup() {
   const screen = document.getElementById('setup-screen');
   screen.classList.remove('hidden');
   const saved = localStorage.getItem('sf-api-key') || '';
   document.getElementById('api-key-input').value = saved;
 }
- 
+
 function hideSetup() {
   document.getElementById('setup-screen').classList.add('hidden');
 }
- 
+
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
@@ -1384,7 +819,7 @@ const DEFAULT_STRUCTURE = [
     { id: 'b9', title: 'Resolution & Denouement', desc: 'The new world established.', chapter: 'Ch 12', done: false }
   ]}
 ];
- 
+
 let state = {
   storyTitle: 'Untitled Story',
   currentTab: 'write',
@@ -1399,13 +834,13 @@ let state = {
   aiHistory: [],
   wordCounts: {}
 };
- 
+
 // ══════════════════════════════════════════
 // STORAGE (localStorage)
 // ══════════════════════════════════════════
 let saveTimer = null;
 let isSaving = false;
- 
+
 function setSaveStatus(status, msg) {
   const ind = document.getElementById('save-indicator');
   const dot = document.getElementById('save-dot');
@@ -1414,7 +849,7 @@ function setSaveStatus(status, msg) {
   dot.className = 'save-dot' + (status === 'saving' ? ' spin' : '');
   label.textContent = msg;
 }
- 
+
 function saveAll() {
   if (isSaving) return;
   isSaving = true;
@@ -1439,13 +874,13 @@ function saveAll() {
   }
   isSaving = false;
 }
- 
+
 function scheduleSave() {
   clearTimeout(saveTimer);
   setSaveStatus('saving', 'Unsaved changes…');
   saveTimer = setTimeout(saveAll, 1500);
 }
- 
+
 function loadFromStorage() {
   try {
     const raw = localStorage.getItem('storyforge-data');
@@ -1467,21 +902,22 @@ function loadFromStorage() {
   }
   return false;
 }
- 
+
 // ══════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════
 function boot() {
-  const savedKey = localStorage.getItem('sf-api-key');
+  const savedKey = (localStorage.getItem('sf-api-key') || '').trim().replace(/\s+/g, '');
   if (savedKey && savedKey.startsWith('sk-ant-')) {
     ANTHROPIC_API_KEY = savedKey;
+    localStorage.setItem('sf-api-key', savedKey); // re-save cleaned version
     document.getElementById('setup-screen').classList.add('hidden');
     startApp();
   } else {
     // Show setup screen — app waits for key
   }
 }
- 
+
 function startApp() {
   const overlay = document.getElementById('loading-overlay');
   overlay.classList.remove('hidden');
@@ -1495,7 +931,7 @@ function startApp() {
   document.getElementById('story-title-status').textContent = state.storyTitle;
   setTimeout(() => overlay.classList.add('hidden'), 600);
 }
- 
+
 // ══════════════════════════════════════════
 // TABS
 // ══════════════════════════════════════════
@@ -1509,7 +945,7 @@ function switchTab(btn, panel) {
   document.getElementById('sidebar-label').textContent = labels[panel];
   renderSidebar();
 }
- 
+
 // ══════════════════════════════════════════
 // SIDEBAR
 // ══════════════════════════════════════════
@@ -1540,7 +976,7 @@ function renderSidebar() {
     });
   }
 }
- 
+
 // ══════════════════════════════════════════
 // CHAPTERS
 // ══════════════════════════════════════════
@@ -1553,7 +989,7 @@ function saveCurrentChapter() {
   }
   scheduleSave();
 }
- 
+
 function loadChapter(id) {
   state.currentChapter = id;
   const ch = state.chapters.find(c => c.id === id);
@@ -1564,14 +1000,14 @@ function loadChapter(id) {
   }
   renderSidebar();
 }
- 
+
 function onTitleInput() {
   const ch = state.chapters.find(c => c.id === state.currentChapter);
   if (ch) ch.title = document.getElementById('chapter-title').value;
   renderSidebar();
   scheduleSave();
 }
- 
+
 function updateWordCount() {
   const text = document.getElementById('editor').value;
   const count = countWords(text);
@@ -1581,18 +1017,18 @@ function updateWordCount() {
   updateStatusBar();
   scheduleSave();
 }
- 
+
 function countWords(text) {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
- 
+
 function updateStatusBar() {
   document.getElementById('chapter-count').textContent = state.chapters.length;
   document.getElementById('char-count').textContent = state.characters.length;
   const total = Object.values(state.wordCounts).reduce((a, b) => a + b, 0);
   document.getElementById('total-words').textContent = total.toLocaleString();
 }
- 
+
 // ══════════════════════════════════════════
 // STRUCTURE
 // ══════════════════════════════════════════
@@ -1613,12 +1049,12 @@ function renderStructure() {
     grid.appendChild(div);
   });
 }
- 
+
 function toggleBeat(id) {
   state.structure.forEach(act => { const b = act.beats.find(b => b.id === id); if (b) b.done = !b.done; });
   renderStructure(); scheduleSave();
 }
- 
+
 async function generateStructure() {
   const btn = event.target; btn.textContent = '✦ Generating…'; btn.disabled = true;
   try {
@@ -1629,7 +1065,7 @@ async function generateStructure() {
   } catch (e) { alert('Could not generate structure. Add more story content first.'); }
   btn.textContent = '✦ Generate Structure'; btn.disabled = false;
 }
- 
+
 // ══════════════════════════════════════════
 // CHARACTERS
 // ══════════════════════════════════════════
@@ -1655,7 +1091,7 @@ function renderCharacters() {
   });
   updateStatusBar();
 }
- 
+
 async function generateCharacterIdeas() {
   const btn = event.target; btn.textContent = '✦ Generating…'; btn.disabled = true;
   try {
@@ -1666,7 +1102,7 @@ async function generateCharacterIdeas() {
   } catch (e) { alert('Could not generate characters. Add some story content first.'); }
   btn.textContent = '✦ Generate Ideas'; btn.disabled = false;
 }
- 
+
 // ══════════════════════════════════════════
 // PLOT THREADS
 // ══════════════════════════════════════════
@@ -1688,7 +1124,7 @@ function renderPlotThreads() {
     area.appendChild(col);
   });
 }
- 
+
 async function analyzePlot() {
   const btn = event.target; btn.textContent = '✦ Analyzing…'; btn.disabled = true;
   try {
@@ -1699,7 +1135,7 @@ async function analyzePlot() {
   } catch (e) { alert('Could not analyze plot. Add more story content first.'); }
   btn.textContent = '✦ Analyze Threads'; btn.disabled = false;
 }
- 
+
 // ══════════════════════════════════════════
 // AI CORE
 // ══════════════════════════════════════════
@@ -1719,14 +1155,16 @@ function buildStoryContext() {
     : '  None yet';
   return `STORY TITLE: ${state.storyTitle}\n\nCHARACTERS:\n${charSummary}\n\nPLOT THREADS:\n${plotSummary}\n\nNOTES & REFERENCES:\n${notesSummary}\n\nCHAPTERS (full text):\n${chaptersFull}`;
 }
- 
+
 async function callAI(system, userMsg, history = []) {
+  const key = (ANTHROPIC_API_KEY || '').trim().replace(/\s+/g, '');
+  if (!key) throw new Error('No API key set. Click "API Key" in the top right to add one.');
   const messages = [...history, { role: 'user', content: userMsg }];
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
+      'x-api-key': key,
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true'
     },
@@ -1739,7 +1177,7 @@ async function callAI(system, userMsg, history = []) {
   const data = await response.json();
   return data.content[0].text;
 }
- 
+
 async function sendAIMessage() {
   const input = document.getElementById('ai-input');
   const msg = input.value.trim();
@@ -1747,9 +1185,9 @@ async function sendAIMessage() {
   input.value = '';
   await processAIMessage(msg);
 }
- 
+
 async function sendQuick(msg) { await processAIMessage(msg); }
- 
+
 async function aiAction(action) {
   const ch = state.chapters.find(c => c.id === state.currentChapter);
   const chTitle = ch ? ch.title : 'Current chapter';
@@ -1766,20 +1204,20 @@ async function aiAction(action) {
   };
   await processAIMessage(prompts[action], true);
 }
- 
+
 async function processAIMessage(userMsg, isAction = false) {
   addAIMessage('user', userMsg.length > 120 ? userMsg.slice(0, 120) + '…' : userMsg);
   setAIThinking(true);
- 
+
   const system = `You are an expert creative writing assistant named StoryForge. You have direct access to the author's full manuscript — every chapter's complete text, all characters, and plot threads.
- 
+
 You help with: writing and continuing prose, character consistency checks, plot structure and continuity, dialogue improvement, detailed editing, and answering questions grounded in the author's own notes and world-building.
- 
+
 When referencing the story, cite specific passages or chapter names. Match the established voice and style precisely.
- 
+
 Current manuscript:
 ${buildStoryContext()}`;
- 
+
   try {
     const history = state.aiHistory.slice(-6);
     const reply = await callAI(system, userMsg, history);
@@ -1796,7 +1234,7 @@ ${buildStoryContext()}`;
     addAIMessage('assistant', msg);
   }
 }
- 
+
 function addAIMessage(role, text, showApply = false) {
   const container = document.getElementById('ai-messages');
   container.querySelector('.loading-indicator')?.remove();
@@ -1817,7 +1255,7 @@ function addAIMessage(role, text, showApply = false) {
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
- 
+
 function applyToChapter(text) {
   const editor = document.getElementById('editor');
   let prose = text;
@@ -1826,7 +1264,7 @@ function applyToChapter(text) {
   editor.value = (editor.value + '\n\n' + prose).trim();
   updateWordCount();
 }
- 
+
 function setAIThinking(thinking) {
   document.getElementById('ai-dot').className = 'ai-dot' + (thinking ? ' thinking' : '');
   document.getElementById('ai-send-btn').disabled = thinking;
@@ -1839,23 +1277,23 @@ function setAIThinking(thinking) {
     container.scrollTop = container.scrollHeight;
   }
 }
- 
+
 function handleAIKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAIMessage(); } }
 function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
- 
- 
+
+
 // ══════════════════════════════════════════
 // NOTES
 // ══════════════════════════════════════════
 const NOTE_LABELS = { writer: "Writer's Notes", character: 'Character Info', world: 'World Building', research: 'Research', general: 'General' };
- 
+
 function createNote() {
   const note = { id: Date.now(), title: '', type: 'writer', body: '', createdAt: new Date().toISOString() };
   state.notes.unshift(note);
   state.currentNoteId = note.id;
   renderNotesList(); renderSidebar(); openNote(note.id); scheduleSave();
 }
- 
+
 function openNote(id) {
   state.currentNoteId = id;
   const note = state.notes.find(n => n.id === id);
@@ -1868,7 +1306,7 @@ function openNote(id) {
   document.getElementById('note-body-textarea').value = note.body;
   renderNotesList(); renderSidebar();
 }
- 
+
 function onNoteInput() {
   const note = state.notes.find(n => n.id === state.currentNoteId);
   if (!note) return;
@@ -1877,7 +1315,7 @@ function onNoteInput() {
   note.body = document.getElementById('note-body-textarea').value;
   renderNotesList(); renderSidebar(); scheduleSave();
 }
- 
+
 function deleteCurrentNote() {
   if (!state.currentNoteId || !confirm('Delete this note?')) return;
   state.notes = state.notes.filter(n => n.id !== state.currentNoteId);
@@ -1886,14 +1324,14 @@ function deleteCurrentNote() {
   document.getElementById('note-editor').style.display = 'none';
   renderNotesList(); renderSidebar(); updateStatusBar(); scheduleSave();
 }
- 
+
 function filterNotes(type, btn) {
   state.noteFilter = type;
   document.querySelectorAll('.note-filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderNotesList(); renderSidebar();
 }
- 
+
 function renderNotesList() {
   const container = document.getElementById('notes-list-scroll');
   if (!container) return;
@@ -1911,7 +1349,7 @@ function renderNotesList() {
     container.appendChild(div);
   });
 }
- 
+
 // ══════════════════════════════════════════
 // MODALS
 // ══════════════════════════════════════════
@@ -1926,7 +1364,7 @@ function openNewItemModal() {
 function openCharModal() { ['char-name','char-traits','char-motivation','char-background'].forEach(id => document.getElementById(id).value = ''); document.getElementById('char-modal').classList.add('open'); }
 function openPlotModal() { ['plot-name','plot-desc','plot-chapters'].forEach(id => document.getElementById(id).value = ''); document.getElementById('plot-modal').classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
- 
+
 function createNewItem() {
   const name = document.getElementById('new-item-name').value.trim();
   if (!name) return;
@@ -1939,7 +1377,7 @@ function createNewItem() {
   updateStatusBar();
   scheduleSave();
 }
- 
+
 function saveCharacter() {
   const name = document.getElementById('char-name').value.trim();
   if (!name) return;
@@ -1949,7 +1387,7 @@ function saveCharacter() {
   renderSidebar();
   scheduleSave();
 }
- 
+
 function savePlotThread() {
   const name = document.getElementById('plot-name').value.trim();
   if (!name) return;
@@ -1959,11 +1397,10 @@ function savePlotThread() {
   renderSidebar();
   scheduleSave();
 }
- 
+
 document.querySelectorAll('.modal-bg').forEach(bg => bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); }));
- 
+
 boot();
 </script>
 </body>
 </html>
- 
