@@ -750,7 +750,7 @@ async function processAIMessage(userMsg,isAction=false){
   addAIMessage('user',userMsg.length>120?userMsg.slice(0,120)+'...':userMsg);setAIThinking(true);
   const system='You are StoryForge, an expert creative writing assistant with full access to the manuscript and all the author\'s notes.\n\nIMPORTANT: The Notes section below contains style guides, world-building rules, and references set by the author. Always follow these — especially any Style Guide notes — when writing or giving suggestions.\n\nYou help with: continuing prose, consistency checks, plot continuity, dialogue, editing. Cite specific passages when referencing the text.\n\nCurrent manuscript:\n'+buildStoryContext();
   try{
-    const reply=await callAI(system,userMsg,state.aiHistory.slice(-6));
+    const reply=await callAI(system,userMsg,state.aiHistory);
     state.aiHistory.push({role:'user',content:userMsg});state.aiHistory.push({role:'assistant',content:reply});
     setAIThinking(false);
     addAIMessage('assistant',reply,reply.includes('---')||reply.toLowerCase().includes('here is')||isAction);
